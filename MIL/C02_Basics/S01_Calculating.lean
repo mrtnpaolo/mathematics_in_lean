@@ -7,10 +7,10 @@ example (a b c : ℝ) : a * b * c = b * (a * c) := by
 
 -- Try these.
 example (a b c : ℝ) : c * b * a = b * (a * c) := by
-  sorry
+  rw [mul_comm c b,mul_assoc,mul_comm c a]
 
 example (a b c : ℝ) : a * (b * c) = b * (a * c) := by
-  sorry
+  rw [← mul_assoc b a c, mul_comm b a, mul_assoc]
 
 -- An example.
 example (a b c : ℝ) : a * b * c = b * c * a := by
@@ -20,10 +20,10 @@ example (a b c : ℝ) : a * b * c = b * c * a := by
 /- Try doing the first of these without providing any arguments at all,
    and the second with only one argument. -/
 example (a b c : ℝ) : a * (b * c) = b * (c * a) := by
-  sorry
+  rw [mul_comm, mul_assoc]
 
 example (a b c : ℝ) : a * (b * c) = b * (a * c) := by
-  sorry
+  rw [mul_comm, mul_assoc, mul_comm a]
 
 -- Using facts from the local context.
 example (a b c d e f : ℝ) (h : a * b = c * d) (h' : e = f) : a * (b * e) = c * (d * f) := by
@@ -33,10 +33,10 @@ example (a b c d e f : ℝ) (h : a * b = c * d) (h' : e = f) : a * (b * e) = c *
   rw [mul_assoc]
 
 example (a b c d e f : ℝ) (h : b * c = e * f) : a * b * c * d = a * e * f * d := by
-  sorry
+  rw [mul_assoc a b c, h, mul_assoc a e f]
 
 example (a b c d : ℝ) (hyp : c = b * a - d) (hyp' : d = a * b) : c = 0 := by
-  sorry
+  rw [hyp, hyp', mul_comm, sub_self]
 
 example (a b c d e f : ℝ) (h : a * b = c * d) (h' : e = f) : a * (b * e) = c * (d * f) := by
   rw [h', ← mul_assoc, h, mul_assoc]
@@ -84,11 +84,11 @@ example : (a + b) * (a + b) = a * a + 2 * (a * b) + b * b :=
 example : (a + b) * (a + b) = a * a + 2 * (a * b) + b * b :=
   calc
     (a + b) * (a + b) = a * a + b * a + (a * b + b * b) := by
-      sorry
+      rw [← right_distrib, ← right_distrib, left_distrib]
     _ = a * a + (b * a + a * b) + b * b := by
-      sorry
+      rw [add_assoc, ← add_assoc (b*a), ← add_assoc]
     _ = a * a + 2 * (a * b) + b * b := by
-      sorry
+      rw [mul_comm b a, ← two_mul]
 
 end
 
@@ -97,17 +97,31 @@ section
 variable (a b c d : ℝ)
 
 example : (a + b) * (c + d) = a * c + a * d + b * c + b * d := by
-  sorry
+  rw [right_distrib, left_distrib, left_distrib, ← add_assoc]
 
 example (a b : ℝ) : (a + b) * (a - b) = a ^ 2 - b ^ 2 := by
-  sorry
+  rw [pow_two, pow_two]
+  rw [← add_zero_sub _ (b*b), add_sub, ← sub_self (a * b)]
+  rw [add_sub_assoc, sub_sub, ← add_sub_assoc]
+  rw [← right_distrib, mul_comm a b, ← right_distrib, ← mul_sub_left_distrib]
 
-#check pow_two a
-#check mul_sub a b c
-#check add_mul a b c
-#check add_sub a b c
-#check sub_sub a b c
-#check add_zero a
+/-
+  rw [pow_two, pow_two]
+  rw [← add_zero_sub _ (b*b), add_sub, ← sub_self (a * b)]
+  rw [add_sub_assoc, sub_sub, ← add_sub_assoc]
+  rw [← left_distrib]
+  rw [mul_comm a b, ← left_distrib]
+  rw [← mul_sub_right_distrib]
+  rw [mul_comm]
+ -/
+
+#check sub_zero      -- a - 0 = a
+#check pow_two a     -- a^2 = a * a
+#check mul_sub a b c -- a * (b - c) = a * b - a * c
+#check add_mul a b c -- (a + b) * c = a * c + b * c
+#check add_sub a b c -- a + (b - c) = (a + b) - c
+#check sub_sub a b c -- (a - b) - c = a - (b + c)
+#check add_zero a    -- a + 0 = a
 
 end
 
